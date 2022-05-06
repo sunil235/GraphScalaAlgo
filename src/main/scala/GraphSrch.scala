@@ -1,15 +1,12 @@
-import java.io.File
-import scala.collection.mutable.Map
+import scala.collection.{mutable => m}
 import scala.collection.mutable.ListBuffer
-import scala.io.StdIn._
 import scala.io.Source
-
 
 object GraphSrch {
 
   // Depth First Search
-  def deptFirstPrint(graph: Map[String, ListBuffer[String]], node: String, visited: ListBuffer[String]): ListBuffer[String] = {
-    if (visited.contains(node) == false) {
+  def deptFirstPrint(graph: m.HashMap[String, ListBuffer[String]], node: String, visited: ListBuffer[String]): ListBuffer[String] = {
+    if (!visited.contains(node)) {
       visited.append(node)
       for (k <- graph(node)) {
         deptFirstPrint(graph, k, visited)
@@ -19,27 +16,27 @@ object GraphSrch {
   }
 
   //Breadth First Search
-  def breadthFirstPrint(graph: Map[String, ListBuffer[String]], node: String, visited: ListBuffer[String]): ListBuffer[String] = {
+  def breadthFirstPrint(graph: m.HashMap[String, ListBuffer[String]], node: String, visited: ListBuffer[String]): ListBuffer[String] = {
     val queue = ListBuffer.empty[String]
     visited.append(node)
     queue.append(node)
-    while (queue.length > 0) {
+    while (queue.nonEmpty) {
       val s = queue.remove(0)
       for (k <- graph(s)) {
-        if (visited.contains(k) == false) {
-          visited.append(k)
+        if (!visited.contains(k)) {
           queue.append(k)
+          visited.append(k)
         }
       }
     }
     return visited
   }
   // Build Adjacency list
-  def buildAdjList(wordlist: List[String]): Map[String, ListBuffer[String]] = {
-    val startswith: Map[Char, ListBuffer[String]] = Map.empty[Char, ListBuffer[String]]
-    val graph: Map[String, ListBuffer[String]] = Map.empty[String, ListBuffer[String]]
+  def buildAdjList(wordlist: List[String]): m.HashMap[String, ListBuffer[String]] = {
+    val startswith: m.HashMap[Char, ListBuffer[String]] = m.HashMap.empty[Char, ListBuffer[String]]
+    val graph: m.HashMap[String, ListBuffer[String]] = m.HashMap.empty[String, ListBuffer[String]]
     for (word <- wordlist) {
-      if (startswith.get(word(0)) == None) {
+      if (!startswith.contains(word(0))) {
         startswith.put(word(0), ListBuffer(word))
       } else {
         startswith(word(0)).append(word)
@@ -47,10 +44,10 @@ object GraphSrch {
     }
     for (word <- wordlist) {
       val elem = graph.get(word)
-      if (elem == None) {
-        graph.put(word,startswith.get(word.last).getOrElse(ListBuffer.empty[String]))
+      if (elem.isEmpty) {
+        graph.put(word,startswith.getOrElse(word.last,ListBuffer.empty[String]))
       } else {
-        graph += word -> startswith.get(word.last).getOrElse(ListBuffer.empty[String])
+        graph += word -> startswith.getOrElse(word.last,ListBuffer.empty[String])
    }
      }
     return graph
@@ -59,15 +56,20 @@ object GraphSrch {
 
   def main(args: Array[String]): Unit = {
     //Args 0 : File name 1:label
-    val lines: List[String] = Source.fromFile(args(0)).getLines.toList
+    val file =  Source.fromFile(args(0))
+    val lines: List[String] = file.getLines.toList
+    file.close()
     val GetOption: String = args(1)
     val GetWord: String = args(2)
+
 
     if (GetOption == "DFS") {
       val t0 = System.nanoTime()
       print(deptFirstPrint(buildAdjList(lines),GetWord,ListBuffer.empty[String]))
       val t1 = System.nanoTime()
       print("\n Time taken for " + GetOption + " is :" + (t1 - t0) / 1e9d + " seconds")
+      //print("\n Node id :"+ {dictl[GetWord]}")
+
    }
     else {
       val t0 = System.nanoTime()
