@@ -1,6 +1,7 @@
 import scala.collection.{mutable => m}
 import scala.collection.mutable.ListBuffer
 import scala.io.Source
+import scala.io.StdIn.readLine
 
 object GraphSrch {
 
@@ -56,26 +57,46 @@ object GraphSrch {
 
   def main(args: Array[String]): Unit = {
     //Args 0 : File name 1:label
-    val file =  Source.fromFile(args(0))
+    print("Enter the full file path incl Filename with extn :")
+    val file =  Source.fromFile(readLine())
     val lines: List[String] = file.getLines.toList
     file.close()
-    val GetOption: String = args(1)
-    val GetWord: String = args(2)
-
+    print("Enter the search DFS/BFS:")
+    val GetOption: String = readLine()
+    print("Enter label:")
+    val GetWord: String = readLine()
+    // Dict obj to store label and ids
+    val dictl : m.HashMap[String,Int] = m.HashMap.empty[String,Int]
+    for ( (line,nodeid) <- lines.zipWithIndex ) {
+      dictl.put(line, nodeid)
+    }
 
     if (GetOption == "DFS") {
-      val t0 = System.nanoTime()
-      print(deptFirstPrint(buildAdjList(lines),GetWord,ListBuffer.empty[String]))
-      val t1 = System.nanoTime()
-      print("\n Time taken for " + GetOption + " is :" + (t1 - t0) / 1e9d + " seconds")
-      //print("\n Node id :"+ {dictl[GetWord]}")
+      if (!dictl.keys.toList.contains(GetWord))
+        {
+          print("\n Label not found")
+        } else {
+        val t0 = System.nanoTime()
+        print("Graph traversal :" + deptFirstPrint(buildAdjList(lines), GetWord, ListBuffer.empty[String]))
+        print("\n Node id : " + dictl(GetWord))
+        val t1 = System.nanoTime()
+        print("\n Time taken for " + GetOption + " is :" + (t1 - t0) / 1e9d + " seconds")
 
+      }
    }
     else {
-      val t0 = System.nanoTime()
-      print(breadthFirstPrint(buildAdjList(lines),GetWord,ListBuffer.empty[String]))
-      val t1 = System.nanoTime()
-      print("\n Time taken for " + GetOption + " is :" + (t1 - t0) / 1e9d + " seconds")
+      if (!dictl.keys.toList.contains(GetWord))
+      {
+        print("\n Label not found")
+      }
+      else {
+        val t0 = System.nanoTime()
+        print("Graph traversal :" + breadthFirstPrint(buildAdjList(lines), GetWord, ListBuffer.empty[String]))
+        print("\n Node id : " + dictl(GetWord))
+        val t1 = System.nanoTime()
+        print("\n Time taken for " + GetOption + " is :" + (t1 - t0) / 1e9d + " seconds")
+
+      }
     }
   }
 }
